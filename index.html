@@ -1,0 +1,441 @@
+<html><head><base href="https://financial-planner.com/%20keep%20everything%20the%20same%20but%20break%20down%20the%20expenses%20categorie%20like%20food%20transportation%20housing%20etc%20and%20add%20a%20suggestion%20categorie%20on%20how%20much%20i%20should%20be%20saving%20according%20given%20data">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professional Budget Planner with Savings Suggestion</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --background-color: #ecf0f1;
+        --text-color: #34495e;
+        --card-bg: #ffffff;
+        --warning-color: #e74c3c;
+    }
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+        margin: 0;
+        text-align: center;
+        font-weight: 300;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .card h2 {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 10px;
+        margin-top: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input[type="number"],
+    .form-group input[type="text"],
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    button {
+        background: var(--secondary-color);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+    }
+
+    button:hover {
+        background: #27ae60;
+    }
+
+    #budgetSummary {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .summary-item {
+        flex: 1;
+        min-width: 200px;
+        margin: 10px;
+        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .summary-item h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+    }
+
+    .summary-item p {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    #expenseList {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .expense-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .expense-item:last-child {
+        border-bottom: none;
+    }
+
+    .delete-expense {
+        color: var(--warning-color);
+        cursor: pointer;
+    }
+
+    #chart {
+        width: 100%;
+        height: 300px;
+    }
+
+    #categoryBreakdown {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .category-item {
+        flex: 1 1 calc(33.333% - 20px);
+        margin: 10px;
+        padding: 15px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .category-item h4 {
+        margin-top: 0;
+        color: var(--primary-color);
+    }
+
+    .progress-bar {
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .progress {
+        height: 100%;
+        background: var(--secondary-color);
+        width: 0%;
+        transition: width 0.5s ease-in-out;
+    }
+
+    #savingsSuggestion {
+        background-color: #f0f8ff;
+        border-left: 5px solid var(--primary-color);
+        padding: 15px;
+        margin-top: 20px;
+        font-style: italic;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-chart-pie"></i> Professional Budget Planner</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2><i class="fas fa-money-bill-wave"></i> Income & Expenses</h2>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label for="income"><i class="fas fa-wallet"></i> Monthly Income:</label>
+                    <input type="number" id="income" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseCategory"><i class="fas fa-tags"></i> Expense Category:</label>
+                    <select id="expenseCategory" required>
+                        <option value="food">Food</option>
+                        <option value="transportation">Transportation</option>
+                        <option value="housing">Housing</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expenseName"><i class="fas fa-tag"></i> Expense Name:</label>
+                    <input type="text" id="expenseName" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseAmount"><i class="fas fa-dollar-sign"></i> Expense Amount:</label>
+                    <input type="number" id="expenseAmount" required>
+                </div>
+                <button type="submit"><i class="fas fa-plus"></i> Add Expense</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-chart-bar"></i> Budget Summary</h2>
+            <div id="budgetSummary">
+                <div class="summary-item">
+                    <h3><i class="fas fa-wallet"></i> Total Income</h3>
+                    <p>$<span id="totalIncome">0</span></p>
+                </div>
+                <div class="summary-item">
+                    <h3><i class="fas fa-shopping-cart"></i> Total Expenses</h3>
+                    <p>$<span id="totalExpenses">0</span></p>
+                </div>
+                <div class="summary-item">
+                    <h3><i class="fas fa-piggy-bank"></i> Remaining Budget</h3>
+                    <p>$<span id="remainingBudget">0</span></p>
+                </div>
+            </div>
+            <div id="savingsSuggestion"></div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-list"></i> Expense Breakdown</h2>
+            <div id="expenseList"></div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-chart-pie"></i> Expense Visualization</h2>
+            <canvas id="chart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-th-large"></i> Category Breakdown</h2>
+            <div id="categoryBreakdown"></div>
+        </div>
+    </div>
+
+    <script>
+        let income = 0;
+        let expenses = [];
+        let chart;
+        const categories = ['food', 'transportation', 'housing', 'utilities', 'entertainment', 'healthcare', 'other'];
+
+        document.getElementById('budgetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!income) {
+                income = parseFloat(document.getElementById('income').value);
+                document.getElementById('totalIncome').textContent = income.toFixed(2);
+                updateBudgetSummary();
+            }
+
+            const expenseCategory = document.getElementById('expenseCategory').value;
+            const expenseName = document.getElementById('expenseName').value;
+            const expenseAmount = parseFloat(document.getElementById('expenseAmount').value);
+
+            if (expenseCategory && expenseName && expenseAmount) {
+                expenses.push({category: expenseCategory, name: expenseName, amount: expenseAmount});
+                document.getElementById('expenseName').value = '';
+                document.getElementById('expenseAmount').value = '';
+                updateBudgetSummary();
+                updateExpenseList();
+                updateCategoryBreakdown();
+                updateSavingsSuggestion();
+            }
+        });
+
+        function updateBudgetSummary() {
+            const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
+            const remainingBudget = income - totalExpenses;
+
+            document.getElementById('totalExpenses').textContent = totalExpenses.toFixed(2);
+            document.getElementById('remainingBudget').textContent = remainingBudget.toFixed(2);
+
+            updateChart();
+        }
+
+        function updateExpenseList() {
+            const expenseList = document.getElementById('expenseList');
+            expenseList.innerHTML = '';
+            expenses.forEach((expense, index) => {
+                const expenseItem = document.createElement('div');
+                expenseItem.classList.add('expense-item');
+                expenseItem.innerHTML = `
+                    <span>${expense.name} (${expense.category})</span>
+                    <span>$${expense.amount.toFixed(2)}</span>
+                    <i class="fas fa-trash delete-expense" data-index="${index}"></i>
+                `;
+                expenseList.appendChild(expenseItem);
+            });
+
+            document.querySelectorAll('.delete-expense').forEach(deleteBtn => {
+                deleteBtn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    expenses.splice(index, 1);
+                    updateBudgetSummary();
+                    updateExpenseList();
+                    updateCategoryBreakdown();
+                    updateSavingsSuggestion();
+                });
+            });
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            const categoryTotals = {};
+            categories.forEach(category => {
+                categoryTotals[category] = expenses
+                    .filter(expense => expense.category === category)
+                    .reduce((total, expense) => total + expense.amount, 0);
+            });
+
+            const data = {
+                labels: categories,
+                datasets: [{
+                    data: categories.map(category => categoryTotals[category]),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FF6384'
+                    ],
+                }]
+            };
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Expense Breakdown by Category'
+                        }
+                    }
+                },
+            });
+        }
+
+        function updateCategoryBreakdown() {
+            const categoryBreakdown = document.getElementById('categoryBreakdown');
+            categoryBreakdown.innerHTML = '';
+
+            const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
+
+            categories.forEach(category => {
+                const categoryTotal = expenses
+                    .filter(expense => expense.category === category)
+                    .reduce((total, expense) => total + expense.amount, 0);
+
+                const percentage = totalExpenses > 0 ? (categoryTotal / totalExpenses) * 100 : 0;
+
+                const categoryItem = document.createElement('div');
+                categoryItem.classList.add('category-item');
+                categoryItem.innerHTML = `
+                    <h4>${category.charAt(0).toUpperCase() + category.slice(1)}</h4>
+                    <p>$${categoryTotal.toFixed(2)} (${percentage.toFixed(2)}%)</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                categoryBreakdown.appendChild(categoryItem);
+            });
+        }
+
+        function updateSavingsSuggestion() {
+            const savingsSuggestion = document.getElementById('savingsSuggestion');
+            const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
+            const remainingBudget = income - totalExpenses;
+            
+            let suggestionText = '';
+            const savingsRate = (remainingBudget / income) * 100;
+
+            if (savingsRate >= 20) {
+                suggestionText = `Great job! You're currently saving ${savingsRate.toFixed(2)}% of your income. Keep up the good work!`;
+            } else if (savingsRate >= 10) {
+                suggestionText = `You're saving ${savingsRate.toFixed(2)}% of your income. Try to increase your savings to 20% for better financial health.`;
+            } else if (savingsRate > 0) {
+                suggestionText = `You're saving only ${savingsRate.toFixed(2)}% of your income. Aim to save at least 10-20% of your income for better financial stability.`;
+            } else {
+                suggestionText = `You're currently spending more than you earn. Try to reduce expenses in non-essential categories to avoid debt.`;
+            }
+
+            savingsSuggestion.innerHTML = `
+                <h3><i class="fas fa-lightbulb"></i> Savings Suggestion</h3>
+                <p>${suggestionText}</p>
+                <p>Recommended savings: $${(income * 0.2).toFixed(2)} (20% of income)</p>
+            `;
+        }
+
+        // Initialize empty expense list, category breakdown, and savings suggestion
+        updateExpenseList();
+        updateCategoryBreakdown();
+        updateSavingsSuggestion();
+    </script>
+</body>
+</html>
